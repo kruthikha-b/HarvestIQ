@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}
+HarvestIQ | Home
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+
+<section class="hero">
+
+    <div class="container">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-6">
+
+                <h1>
+                    Smart Post-Harvest <br>
+                    Management System
+                </h1>
+
+                <p>
+                    Reduce food waste using Artificial Intelligence.
+                    Monitor quality, predict shelf life, connect with buyers,
+                    and manage logistics from one platform.
+                </p>
+
+                <a href="{{ url_for('register') }}" class="btn-green">
+                    Get Started
+                </a>
+            </div>
+
+            <div class="col-lg-6 text-center">
+
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=700" class="img-fluid"
+                    alt="HarvestIQ">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Features -->
+
+<section>
+
+    <div class="container">
+
+        <h2 class="section-title">
+            Who Can Use HarvestIQ?
+        </h2>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+
+                <div class="card-box">
+
+                    <h1>👨‍🌾</h1>
+
+                    <h4>Farmers</h4>
+
+                    <p>
+                        Register produce, track quality,
+                        view shelf life prediction,
+                        receive buyer recommendations
+                        and apply for subsidies.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card-box">
+
+                    <h1>🛒</h1>
+
+                    <h4>Buyers</h4>
+
+                    <p>
+                        Browse available produce,
+                        check quality grades,
+                        purchase directly from farmers
+                        and verify batch information.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="card-box">
+
+                    <h1>🚚</h1>
+
+                    <h4>Logistics</h4>
+
+                    <p>
+                        Manage transportation,
+                        monitor vehicle temperature,
+                        track delivery status
+                        and optimise routes.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- AI Services -->
+
+<section id="features" style="background:#eef6eb;">
+
+    <div class="container">
+
+        <h2 class="section-title">
+
+            AI Powered Services
+
+        </h2>
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <div class="service-card">
+
+                    <h5>Quality Inspection</h5>
+
+                    <p>
+                        AI analyses freshness,
+                        damage percentage,
+                        and generates quality grades.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="service-card">
+
+                    <h5>Shelf Life Prediction</h5>
+
+                    <p>
+                        Predict remaining freshness
+                        to reduce food spoilage.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="service-card">
+
+                    <h5>Buyer Recommendation</h5>
+
+                    <p>
+                        Suggests the best buyers
+                        based on quality,
+                        location and market demand.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="service-card">
+
+                    <h5>Cold Storage</h5>
+
+                    <p>
+                        Find nearby cold storage
+                        to increase produce life.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="service-card">
+
+                    <h5>Smart Logistics</h5>
+
+                    <p>
+                        Monitor deliveries,
+                        transport temperature,
+                        and ETA in real time.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="service-card">
+
+                    <h5>Government Subsidies</h5>
+
+                    <p>
+                        Discover eligible subsidy schemes
+                        and apply directly through HarvestIQ.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- Call To Action -->
+
+<section style="background:#1d4d2b;color:white;">
+
+    <div class="container text-center">
+
+        <h2 class="mb-4">
+            Start Managing Your Harvest Smarter
+        </h2>
+
+        <p class="mb-4">
+
+            Join HarvestIQ today and reduce food waste
+            with AI-powered post-harvest management.
+
+        </p>
+
+        <a href="{{ url_for('register') }}" class="btn btn-warning btn-lg">
+
+            Register Now
+
+        </a>
+
+    </div>
+
+</section>
+
+{% endblock %}
