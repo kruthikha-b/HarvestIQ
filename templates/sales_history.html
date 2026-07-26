@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Sales History{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+
+            <h3 class="mb-0">
+                📊 Sales History
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="alert alert-success">
+
+                <strong>Total Earnings :</strong>
+
+                ₹ {{ total_sales }}
+
+            </div>
+
+            {% if sales %}
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-success">
+
+                    <tr>
+
+                        <th>Receipt ID</th>
+                        <th>Produce</th>
+                        <th>Buyer</th>
+                        <th>Quantity</th>
+                        <th>Sale Price</th>
+                        <th>Sale Date</th>
+                        <th>Status</th>
+                        <th>Receipt</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for sale in sales %}
+
+                    <tr>
+
+                        <td>#{{ sale.id }}</td>
+
+                        <td>{{ sale.batch.crop_name }}</td>
+
+                        <td>{{ sale.buyer.company_name }}</td>
+
+                        <td>{{ sale.quantity_sold }} {{ sale.batch.unit }}</td>
+
+                        <td>₹ {{ sale.sale_price }}</td>
+
+                        <td>{{ sale.sale_date }}</td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                Completed
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <a href="{{ url_for('sale_receipt', sale_id=sale.id) }}"
+                               class="btn btn-primary btn-sm">
+
+                                View Receipt
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="alert alert-warning text-center">
+
+                No sales found.
+
+            </div>
+
+            {% endif %}
+
+            <div class="text-center mt-4">
+
+                <a href="{{ url_for('farmer_dashboard') }}"
+                   class="btn btn-success">
+
+                    ← Back to Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

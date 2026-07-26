@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Buyer Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 50px 0;
+    }
+
+    .welcome-card {
+        background: #1d4d2b;
+        color: white;
+        padding: 35px;
+        border-radius: 20px;
+        margin-bottom: 35px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+        text-align: center;
+        height: 100%;
+    }
+
+    .stat-card h2 {
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .section-box {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="welcome-card">
+
+            <h2>
+
+                Welcome,
+                {{ buyer.user.full_name }}
+
+                🛒
+
+            </h2>
+
+            <p>
+
+                Browse fresh produce directly from verified farmers.
+
+            </p>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                <div class="stat-card">
+
+                    <h5>
+
+                        Available Produce
+
+                    </h5>
+
+                    <h2>
+
+                        {{ total_available }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="stat-card">
+
+                    <h5>
+
+                        My Purchases
+
+                    </h5>
+
+                    <h2>
+
+                        {{ buyer.purchases|length }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="stat-card">
+
+                    <h5>
+
+                        Verified Farmers
+
+                    </h5>
+
+                    <h2>
+
+                        {{ available_batches|length }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="section-box">
+
+            <h3 class="mb-4">Available Produce</h3>
+
+            {% if available_batches %}
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-success">
+
+                    <tr>
+
+                        <th>Crop</th>
+                        <th>Variety</th>
+                        <th>Quantity</th>
+                        <th>Harvest Date</th>
+                        <th>Location</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for batch in available_batches %}
+
+                    <tr>
+
+                        <td>{{ batch.crop_name }}</td>
+
+                        <td>{{ batch.variety }}</td>
+
+                        <td>{{ batch.quantity }} {{ batch.unit }}</td>
+
+                        <td>{{ batch.harvest_date }}</td>
+
+                        <td>{{ batch.farm_location }}</td>
+
+                        <td>
+
+                            <a href="{{ url_for('view_produce', batch_id=batch.id) }}" class="btn btn-success btn-sm">
+
+                                View Details
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="alert alert-warning text-center">
+
+                No produce available.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <div class="section-box">
+
+            <h3 class="mb-4">Quick Actions</h3>
+
+            <div class="row justify-content-center text-center">
+
+                <div class="col-md-4 mb-3">
+
+                    <a href="{{ url_for('available_produce') }}" class="btn btn-success w-100 py-3">
+
+                        🌾<br><br>
+
+                        Browse Produce
+
+                    </a>
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+
+                    <a href="{{ url_for('purchase_history') }}" class="btn btn-primary w-100 py-3">
+
+                        📦<br><br>
+
+                        Purchase History
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

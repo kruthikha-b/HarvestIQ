@@ -282,9 +282,9 @@
                                 Financial assistance for eligible farmers to support agricultural activities.
                             </p>
 
-                            <button class="btn btn-success">
+                            <a href="{{ url_for('apply_subsidy', subsidy_id=1) }}" class="btn btn-success">
                                 Apply
-                            </button>
+                            </a>
 
                         </div>
 
@@ -304,9 +304,9 @@
                                 Reduce storage costs and improve shelf life using modern cold storage facilities.
                             </p>
 
-                            <button class="btn btn-success">
+                            <a href="{{ url_for('apply_subsidy', subsidy_id=2) }}" class="btn btn-success">
                                 Apply
-                            </button>
+                            </a>
 
                         </div>
 
@@ -326,9 +326,9 @@
                                 Financial support for adopting sustainable and organic farming practices.
                             </p>
 
-                            <button class="btn btn-success">
+                            <a href="{{ url_for('apply_subsidy', subsidy_id=3) }}" class="btn btn-success">
                                 Apply
-                            </button>
+                            </a>
 
                         </div>
 
@@ -363,14 +363,17 @@
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <a href="#" class="btn btn-warning w-100 py-3">
+                    <a href="{{ url_for('sales_history') }}" class="btn btn-warning w-100 py-3">
+
                         📊<br><br>
+
                         Sales History
+
                     </a>
                 </div>
 
                 <div class="col-md-3 mb-3">
-                    <a href="#" class="btn btn-dark w-100 py-3">
+                    <a href="{{ url_for('view_subsidies') }}" class="btn btn-dark w-100 py-3">
                         💰<br><br>
                         View Subsidies
                     </a>

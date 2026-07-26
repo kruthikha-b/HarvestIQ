@@ -2,7 +2,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import Flask,render_template,request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime,date
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from flask import session
@@ -569,7 +569,7 @@ def login():
                 return redirect(url_for("farmer_dashboard"))
 
             elif user.role == "Buyer":
-                return "Buyer Dashboard"
+                return redirect(url_for("buyer_dashboard"))
 
             elif user.role == "Logistics":
                 return "logistics_dashboard"
@@ -1016,12 +1016,341 @@ def sale_receipt(sale_id):
         "sale_receipt.html",
         sale=sale
     )
+@app.route("/sales_history")
+def sales_history():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    farmer = Farmer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    sales = Sale.query.join(ProduceBatch).filter(
+        ProduceBatch.farmer_id == farmer.id
+    ).order_by(Sale.sale_date.desc()).all()
+
+    total_sales = sum(sale.sale_price for sale in sales)
+
+    return render_template(
+        "sales_history.html",
+        sales=sales,
+        total_sales=total_sales
+    )
+@app.route("/apply_subsidy/<int:subsidy_id>")
+def apply_subsidy(subsidy_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    farmer = Farmer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    subsidy = Subsidy.query.get_or_404(subsidy_id)
+
+    # Check if already applied
+    existing = SubsidyApplication.query.filter_by(
+        farmer_id=farmer.id,
+        subsidy_id=subsidy.id
+    ).first()
+
+    if existing:
+        flash("You have already applied for this subsidy.", "warning")
+        return redirect(url_for("view_subsidies"))
+
+    application = SubsidyApplication(
+        farmer_id=farmer.id,
+        subsidy_id=subsidy.id,
+        application_date=date.today(),
+        status="Pending"
+    )
+
+    db.session.add(application)
+    db.session.commit()
+
+    flash("Subsidy application submitted successfully!", "success")
+
+    return redirect(url_for("view_subsidies"))
+@app.route("/view_subsidies")
+def view_subsidies():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    farmer = Farmer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    applications = SubsidyApplication.query.filter_by(
+        farmer_id=farmer.id
+    ).all()
+
+    return render_template(
+        "view_subsidies.html",
+        applications=applications
+    )
+@app.route("/buyer_dashboard")
+def buyer_dashboard():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    buyer = Buyer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    available_batches = ProduceBatch.query.filter(
+        ProduceBatch.status != "Sold"
+    ).all()
+
+    total_available = len(available_batches)
+
+    return render_template(
+        "buyer_dashboard.html",
+        buyer=buyer,
+        total_available=total_available,
+        available_batches=available_batches[:5]
+    )
+@app.route("/available_produce")
+def available_produce():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    buyer = Buyer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    search = request.args.get("search", "")
+
+    if search:
+
+        batches = ProduceBatch.query.filter(
+            ProduceBatch.status != "Sold",
+            ProduceBatch.crop_name.ilike(f"%{search}%")
+        ).all()
+
+    else:
+
+        batches = ProduceBatch.query.filter(
+            ProduceBatch.status != "Sold"
+        ).all()
+
+    return render_template(
+        "available_produce.html",
+        buyer=buyer,
+        batches=batches,
+        search=search
+    )
+@app.route("/view_produce/<int:batch_id>")
+def view_produce(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    quality = QualityInspection.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    shelf = ShelfLifePrediction.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    recommendation = Recommendation.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    return render_template(
+        "view_produce.html",
+        batch=batch,
+        quality=quality,
+        shelf=shelf,
+        recommendation=recommendation
+    )
+@app.route("/purchase_history")
+def purchase_history():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    buyer = Buyer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    purchases = Sale.query.filter_by(
+        buyer_id=buyer.id
+    ).order_by(Sale.sale_date.desc()).all()
+
+    return render_template(
+        "purchase_history.html",
+        purchases=purchases
+    )
+@app.route("/buy_produce/<int:batch_id>")
+def buy_produce(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    buyer = Buyer.query.filter_by(
+        user_id=session["user_id"]
+    ).first_or_404()
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    if batch.status == "Sold":
+        flash("This produce has already been sold.", "danger")
+        return redirect(url_for("available_produce"))
+
+    recommendation = Recommendation.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    if recommendation:
+        price = recommendation.estimated_price
+    else:
+        price = 5000
+
+    sale = Sale(
+        batch_id=batch.id,
+        buyer_id=buyer.id,
+        sale_price=price,
+        quantity_sold=batch.quantity,
+        sale_date=date.today()
+    )
+
+    batch.status = "Sold"
+
+    db.session.add(sale)
+    db.session.commit()
+
+    flash("Purchase completed successfully!", "success")
+
+    return redirect(url_for("sale_receipt", sale_id=sale.id))
+@app.route("/buyer_receipt/<int:sale_id>")
+def buyer_receipt(sale_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    sale = Sale.query.get_or_404(sale_id)
+
+    buyer = Buyer.query.filter_by(user_id=session["user_id"]).first_or_404()
+
+    if sale.buyer_id != buyer.id:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for("purchase_history"))
+
+    return render_template(
+        "buyer_receipt.html",
+        sale=sale
+    )
+@app.route("/buyer_profile", methods=["GET", "POST"])
+def buyer_profile():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    buyer = Buyer.query.filter_by(user_id=user.id).first()
+
+    if request.method == "POST":
+
+        user.full_name = request.form["full_name"]
+        user.email = request.form["email"]
+        user.phone = request.form["phone"]
+
+        buyer.company_name = request.form["company_name"]
+        buyer.buyer_type = request.form["buyer_type"]
+        buyer.city = request.form["city"]
+
+        db.session.commit()
+
+        flash("Profile updated successfully!", "success")
+
+        return redirect(url_for("buyer_profile"))
+
+    return render_template(
+        "buyer_profile.html",
+        user=user,
+        buyer=buyer
+    )
+@app.route("/update_buyer_profile", methods=["POST"])
+def update_buyer_profile():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    buyer = Buyer.query.filter_by(user_id=user.id).first()
+
+    user.full_name = request.form["full_name"]
+    user.email = request.form["email"]
+    user.phone = request.form["phone"]
+
+    buyer.company_name = request.form["company_name"]
+    buyer.buyer_type = request.form["buyer_type"]
+    buyer.city = request.form["city"]
+
+    db.session.commit()
+
+    session["name"] = user.full_name
+
+    flash("Buyer profile updated successfully!", "success")
+
+    return redirect(url_for("buyer_profile"))
 # ==========================
 # Run Application
 # ==========================
-
 if __name__ == "__main__":
+
     with app.app_context():
+
         db.create_all()
+
+        if Subsidy.query.count() == 0:
+
+            db.session.add(Subsidy(
+                name="PM-KISAN",
+                state="All India",
+                eligibility="Small and marginal farmers",
+                benefits="₹6000 per year financial assistance",
+                last_date=date(2026, 12, 31),
+                required_documents="Aadhaar Card, Bank Passbook, Land Records"
+            ))
+
+            db.session.add(Subsidy(
+                name="Cold Storage Subsidy",
+                state="Telangana",
+                eligibility="Registered farmers with produce storage needs",
+                benefits="Up to 50% subsidy on cold storage expenses",
+                last_date=date(2026, 11, 30),
+                required_documents="Farmer ID, Land Records, Storage Proposal"
+            ))
+
+            db.session.add(Subsidy(
+                name="Organic Farming Scheme",
+                state="All India",
+                eligibility="Farmers practising organic farming",
+                benefits="Financial assistance for organic cultivation",
+                last_date=date(2026, 10, 31),
+                required_documents="Organic Certification, Aadhaar Card"
+            ))
+
+            db.session.commit()
+
+            print("Sample subsidies inserted successfully!")
 
     app.run(debug=True)

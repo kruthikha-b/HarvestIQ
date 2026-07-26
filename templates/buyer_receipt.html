@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase Receipt{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+            <h3>Purchase Receipt</h3>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <tr>
+                    <th>Receipt ID</th>
+                    <td>#{{ sale.id }}</td>
+                </tr>
+
+                <tr>
+                    <th>Crop</th>
+                    <td>{{ sale.batch.crop_name }}</td>
+                </tr>
+
+                <tr>
+                    <th>Quantity</th>
+                    <td>{{ sale.quantity_sold }} {{ sale.batch.unit }}</td>
+                </tr>
+
+                <tr>
+                    <th>Price</th>
+                    <td>₹ {{ sale.sale_price }}</td>
+                </tr>
+
+                <tr>
+                    <th>Purchase Date</th>
+                    <td>{{ sale.sale_date }}</td>
+                </tr>
+
+            </table>
+
+            <a href="{{ url_for('buyer_dashboard') }}"
+               class="btn btn-success">
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

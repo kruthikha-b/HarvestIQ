@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}My Subsidies{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">Government Subsidy Applications</h3>
+        </div>
+
+        <div class="card-body">
+
+            {% if applications %}
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-success">
+
+                    <tr>
+                        <th>Scheme</th>
+                        <th>State</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th>Benefits</th>
+                        <th>Required Documents</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for app in applications %}
+
+                    <tr>
+
+                        <td>{{ app.subsidy.name }}</td>
+
+                        <td>{{ app.subsidy.state }}</td>
+
+                        <td>{{ app.application_date }}</td>
+
+                        <td>
+
+                            {% if app.status == "Approved" %}
+                                <span class="badge bg-success">Approved</span>
+
+                            {% elif app.status == "Rejected" %}
+                                <span class="badge bg-danger">Rejected</span>
+
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% endif %}
+
+                        </td>
+
+                        <td>{{ app.subsidy.benefits }}</td>
+
+                        <td>{{ app.subsidy.required_documents }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+                <div class="alert alert-info text-center">
+
+                    You have not applied for any subsidy yet.
+
+                </div>
+
+            {% endif %}
+
+            <div class="text-center mt-4">
+
+                <a href="{{ url_for('farmer_dashboard') }}"
+                   class="btn btn-success">
+
+                    ← Back to Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Available Produce{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+
+            <h3>
+
+                🌾 Available Produce
+
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+            <br>
+
+            <form method="GET" action="{{ url_for('available_produce') }}">
+                <div class="row align-items-end">
+
+                    <div class="col-md-4">
+                        <input type="text" name="crop" class="form-control" placeholder="Search crop"
+                            value="{{ request.args.get('crop','') }}">
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">
+                            Search
+                        </button>
+                    </div>
+
+                    <div class="col-md-2">
+                        <a href="{{ url_for('available_produce') }}" class="btn btn-secondary w-100">
+                            Reset
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+            <br>
+            <br>
+
+            {% if batches %}
+            <table class="table table-hover align-middle">
+
+                <thead class="table-success">
+
+                    <tr>
+
+                        <th>Crop</th>
+                        <th>Variety</th>
+                        <th>Quantity</th>
+                        <th>Harvest Date</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for batch in batches %}
+
+                    <tr>
+
+                        <td>{{ batch.crop_name }}</td>
+
+                        <td>{{ batch.variety }}</td>
+
+                        <td>{{ batch.quantity }} {{ batch.unit }}</td>
+
+                        <td>{{ batch.harvest_date }}</td>
+
+                        <td>{{ batch.farm_location }}</td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+
+                                {{ batch.status }}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <a href="{{ url_for('view_produce', batch_id=batch.id) }}" class="btn btn-success btn-sm">
+
+                                View Details
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="alert alert-warning text-center">
+
+                <h5>No produce available.</h5>
+
+            </div>
+
+            {% endif %}
+
+            <div class="text-center mt-4">
+
+                <a href="{{ url_for('buyer_dashboard') }}" class="btn btn-secondary">
+
+                    ← Back to Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Buyer Profile{% endblock %}
+
+{% block content %}
+
+<style>
+    .profile-section{
+        background:#f5f7f2;
+        min-height:100vh;
+        padding:50px 0;
+    }
+
+    .profile-card{
+        background:white;
+        border-radius:20px;
+        padding:35px;
+        box-shadow:0 5px 20px rgba(0,0,0,.08);
+    }
+
+    .profile-title{
+        color:#1d4d2b;
+        font-weight:bold;
+        margin-bottom:30px;
+    }
+
+    .btn-save{
+        background:#2e7d32;
+        color:white;
+    }
+
+    .btn-save:hover{
+        background:#1d4d2b;
+        color:white;
+    }
+</style>
+
+<div class="profile-section">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8">
+
+                <div class="profile-card">
+
+                    <h2 class="profile-title">
+                        👤 Buyer Profile
+                    </h2>
+
+                    <form method="POST" action="{{ url_for('update_buyer_profile') }}">
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Full Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="full_name"
+                                    class="form-control"
+                                    value="{{ user.full_name }}"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Email
+                                </label>
+
+                                <input
+                                    type="email"
+                                    name="email"
+                                    class="form-control"
+                                    value="{{ user.email }}"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Phone
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    class="form-control"
+                                    value="{{ user.phone }}"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Company Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="company_name"
+                                    class="form-control"
+                                    value="{{ buyer.company_name }}"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    Buyer Type
+                                </label>
+
+                                <select
+                                    name="buyer_type"
+                                    class="form-select"
+                                    required>
+
+                                    <option value="Retail"
+                                    {% if buyer.buyer_type=="Retail" %}selected{% endif %}>
+                                        Retail
+                                    </option>
+
+                                    <option value="Wholesale"
+                                    {% if buyer.buyer_type=="Wholesale" %}selected{% endif %}>
+                                        Wholesale
+                                    </option>
+
+                                    <option value="Exporter"
+                                    {% if buyer.buyer_type=="Exporter" %}selected{% endif %}>
+                                        Exporter
+                                    </option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    City
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="city"
+                                    class="form-control"
+                                    value="{{ buyer.city }}"
+                                    required>
+                            </div>
+
+                        </div>
+
+                        <div class="text-center mt-4">
+
+                            <button
+                                type="submit"
+                                class="btn btn-save px-5">
+
+                                Update Profile
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
