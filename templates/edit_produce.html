@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Produce{% endblock %}
+
+{% block content %}
+
+<style>
+    .edit-container {
+        max-width: 850px;
+        margin: 50px auto;
+    }
+
+    .edit-card {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, .08);
+    }
+
+    .edit-card h2 {
+        color: #1d4d2b;
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .btn-update {
+        background: #2e7d32;
+        color: white;
+    }
+
+    .btn-update:hover {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="container edit-container">
+
+    <div class="edit-card">
+
+        <h2>✏ Edit Produce</h2>
+
+        <form method="POST">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">Crop Name</label>
+
+                    <input type="text" name="crop_name" class="form-control" value="{{ batch.crop_name }}" required>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">Variety</label>
+
+                    <input type="text" name="variety" class="form-control" value="{{ batch.variety }}" required>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">Quantity</label>
+
+                    <input type="number" name="quantity" class="form-control" value="{{ batch.quantity }}" required>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">Unit</label>
+
+                    <select name="unit" class="form-select">
+
+                        <option value="Kg" {% if batch.unit=="Kg" %}selected{% endif %}>Kg</option>
+
+                        <option value="Ton" {% if batch.unit=="Ton" %}selected{% endif %}>Ton</option>
+
+                        <option value="Boxes" {% if batch.unit=="Boxes" %}selected{% endif %}>Boxes</option>
+
+                        <option value="Bags" {% if batch.unit=="Bags" %}selected{% endif %}>Bags</option>
+
+                    </select>
+
+                </div>
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">Harvest Date</label>
+
+                    <input type="date" name="harvest_date" class="form-control" value="{{ batch.harvest_date }}"
+                        required>
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">Farm Location</label>
+
+                    <input type="text" name="farm_location" class="form-control" value="{{ batch.farm_location }}"
+                        required>
+
+                </div>
+
+            </div>
+
+            <div class="text-center mt-4">
+
+                <button type="submit" class="btn btn-update px-5">
+
+                    Update Produce
+
+                </button>
+
+                <a href="{{ url_for('my_produce') }}" class="btn btn-secondary px-5 ms-2">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

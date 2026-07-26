@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Inspection Report{% endblock %}
+
+{% block content %}
+
+<style>
+    .report-container {
+        max-width: 950px;
+        margin: 50px auto;
+    }
+
+    .report-card {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, .08);
+    }
+
+    .report-card h2 {
+        text-align: center;
+        color: #1d4d2b;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .report-image {
+        width: 100%;
+        border-radius: 15px;
+        border: 1px solid #ddd;
+    }
+
+    .result-box {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .result-box h5 {
+        color: #1d4d2b;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .result-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2e7d32;
+    }
+</style>
+
+<div class="container report-container">
+
+    <div class="report-card">
+
+        <h2>🤖 AI Quality Inspection Report</h2>
+
+        <div class="row">
+
+            <div class="col-md-5">
+
+                {% if inspection.image %}
+
+                <img src="{{ url_for('static', filename='uploads/' + inspection.image) }}" class="report-image">
+
+                {% else %}
+
+                <img src="https://via.placeholder.com/400x300?text=No+Image" class="report-image">
+
+                {% endif %}
+
+            </div>
+
+            <div class="col-md-7">
+
+                <div class="result-box">
+
+                    <h5>Crop</h5>
+
+                    <div class="result-value">
+
+                        {{ batch.crop_name }}
+
+                    </div>
+
+                </div>
+
+                <div class="result-box">
+
+                    <h5>Quality Grade</h5>
+
+                    <div class="result-value">
+
+                        {{ inspection.quality_grade }}
+
+                    </div>
+
+                </div>
+
+                <div class="result-box">
+
+                    <h5>Quality Score</h5>
+
+                    <div class="result-value">
+
+                        {{ inspection.quality_score }}/100
+
+                    </div>
+
+                </div>
+                <div class="result-box">
+
+                    <h5>Freshness</h5>
+
+                    <div class="result-value">
+
+                        {{ inspection.freshness }}
+
+                    </div>
+
+                </div>
+
+                <div class="result-box">
+
+                    <h5>Damaged Percentage</h5>
+
+                    <div class="result-value">
+
+                        {{ inspection.damaged_percentage }}%
+
+                    </div>
+
+                </div>
+
+                <div class="result-box">
+
+                    <h5>Inspection Date</h5>
+
+                    <div class="result-value">
+
+                        {{ inspection.inspection_date }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+
+            <a href="{{ url_for('quality_inspection', batch_id=batch.id) }}" class="btn btn-success px-4">
+
+                🔄 Inspect Again
+
+            </a>
+
+            <a href="{{ url_for('my_produce') }}" class="btn btn-secondary px-4 ms-2">
+
+                📦 Back to My Produce
+
+            </a>
+
+            <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-warning px-4 ms-2">
+
+                🏠 Dashboard
+
+            </a>
+            <a href="{{ url_for('shelf_life_prediction', batch_id=batch.id) }}" class="btn btn-primary px-4 ms-2">
+
+                ⏳ Shelf Life
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

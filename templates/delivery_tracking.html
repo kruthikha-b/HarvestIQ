@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery Tracking{% endblock %}
+
+{% block content %}
+
+<style>
+    .delivery-container {
+        max-width: 950px;
+        margin: 50px auto;
+    }
+
+    .delivery-card {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, .08);
+    }
+
+    .delivery-card h2 {
+        text-align: center;
+        color: #1d4d2b;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+
+    .info-box {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .info-box h5 {
+        color: #1d4d2b;
+        font-weight: bold;
+    }
+
+    .value {
+        font-size: 22px;
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .status {
+        background: #fff3cd;
+        color: #856404;
+        padding: 8px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container delivery-container">
+
+    <div class="delivery-card">
+
+        <h2>🚚 Delivery Tracking</h2>
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <h5>Produce</h5>
+
+                    <div class="value">
+
+                        {{ batch.crop_name }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <h5>Current Status</h5>
+
+                    <div class="status">
+
+                        {{ delivery.status }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <h5>Source</h5>
+
+                    <div class="value">
+
+                        {{ delivery.source }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <h5>Destination</h5>
+
+                    <div class="value">
+
+                        {{ delivery.destination }}
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <h5>Transport Temperature</h5>
+
+                    <div class="value">
+
+                        {{ delivery.transport_temperature }} °C
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-box">
+
+                    <h5>Estimated Arrival (ETA)</h5>
+
+                    <div class="value">
+
+                        {{ delivery.eta.strftime('%d-%m-%Y %I:%M %p') }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-12">
+
+                <div class="info-box">
+
+                    <h5>Logistics Company</h5>
+
+                    <div class="value">
+
+                        {{ delivery.logistics.company_name }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <h4 class="mb-3 text-success">
+            Delivery Progress
+        </h4>
+
+        <div class="progress" style="height:30px;">
+
+            {% if delivery.status == "Preparing" %}
+
+            <div class="progress-bar bg-warning" style="width:25%;">
+
+                Preparing
+
+            </div>
+
+            {% elif delivery.status == "In Transit" %}
+
+            <div class="progress-bar bg-info" style="width:70%;">
+
+                In Transit
+
+            </div>
+
+            {% elif delivery.status == "Delivered" %}
+
+            <div class="progress-bar bg-success" style="width:100%;">
+
+                Delivered
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <div class="text-center mt-5">
+
+            <a href="{{ url_for('mark_delivered', delivery_id=delivery.id) }}" class="btn btn-success px-4">
+
+                ✔ Mark as Delivered
+
+            </a>
+
+            <a href="{{ url_for('buyer_recommendation', batch_id=batch.id) }}" class="btn btn-secondary px-4 ms-2">
+
+                ← Buyer Recommendation
+
+            </a>
+
+            <a href="{{ url_for('my_produce') }}" class="btn btn-dark px-4 ms-2">
+
+                📦 My Produce
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

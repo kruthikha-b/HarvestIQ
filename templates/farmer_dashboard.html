@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 50px 0;
+    }
+
+    .welcome-card {
+        background: #1d4d2b;
+        color: white;
+        padding: 35px;
+        border-radius: 20px;
+        margin-bottom: 35px;
+    }
+
+    .welcome-card h2 {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .welcome-card p {
+        margin: 0;
+        opacity: .9;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+        transition: .3s;
+        text-align: center;
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-6px);
+    }
+
+    .stats-card h5 {
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .stats-card h2 {
+        color: #1d4d2b;
+        font-weight: bold;
+    }
+
+    .section-box {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 35px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    }
+
+    .section-title {
+        color: #1d4d2b;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .btn-green {
+        background: #2e7d32;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+    }
+
+    .btn-green:hover {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="welcome-card">
+
+            <h2>Welcome, {{ user.full_name }} 👨‍🌾</h2>
+
+            <p>
+                Manage your produce, monitor quality, and track your sales from one place.
+            </p>
+
+            <br>
+
+            <a href="{{ url_for('register_produce') }}" class="btn btn-warning">
+                + Register Produce
+            </a>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <div class="stats-card">
+
+                    <h5>Total Produce Batches</h5>
+
+                    <h2>{{ total_batches }}</h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="stats-card">
+
+                    <h5>Quality Score</h5>
+
+                    <h2>92%</h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="stats-card">
+
+                    <h5>Total Revenue</h5>
+
+                    <h2>₹0</h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="stats-card">
+
+                    <h5>Spoilage Alerts</h5>
+
+                    <h2>0</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="row">
+
+            <!-- Recent Produce -->
+
+            <div class="col-lg-8">
+
+                <div class="section-box">
+
+                    <h3 class="section-title">Recent Produce Batches</h3>
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-success">
+
+                            <tr>
+                                <th>Crop</th>
+                                <th>Quantity</th>
+                                <th>Harvest Date</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% if recent_batches %}
+
+                            {% for batch in recent_batches %}
+
+                            <tr>
+
+                                <td>{{ batch.crop_name }}</td>
+
+                                <td>{{ batch.quantity }} {{ batch.unit }}</td>
+
+                                <td>{{ batch.harvest_date }}</td>
+
+                                <td>
+
+                                    <span class="badge bg-success">
+
+                                        {{ batch.status }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                            {% else %}
+
+                            <tr>
+
+                                <td colspan="4" class="text-center">
+
+                                    No produce batches registered yet.
+
+                                </td>
+
+                            </tr>
+
+                            {% endif %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- AI Recommendation -->
+
+            <div class="col-lg-4">
+
+                <div class="section-box">
+
+                    <h3 class="section-title">AI Recommendation</h3>
+
+                    <p><strong>Recommended Buyer</strong></p>
+                    <p>FreshMart Pvt Ltd</p>
+
+                    <hr>
+
+                    <p><strong>Estimated Selling Price</strong></p>
+                    <h4 class="text-success">₹0</h4>
+
+                    <hr>
+
+                    <p><strong>Shelf Life Remaining</strong></p>
+                    <h5>-- Days</h5>
+
+                    <hr>
+
+                    <p><strong>Spoilage Risk</strong></p>
+
+                    <span class="badge bg-warning text-dark">
+
+                        Low
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- Government Subsidies -->
+
+        <div class="section-box">
+
+            <h3 class="section-title">Government Subsidies</h3>
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+
+                    <div class="card border-success h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">PM-KISAN</h5>
+
+                            <p class="card-text">
+                                Financial assistance for eligible farmers to support agricultural activities.
+                            </p>
+
+                            <button class="btn btn-success">
+                                Apply
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+
+                    <div class="card border-success h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">Cold Storage Subsidy</h5>
+
+                            <p class="card-text">
+                                Reduce storage costs and improve shelf life using modern cold storage facilities.
+                            </p>
+
+                            <button class="btn btn-success">
+                                Apply
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+
+                    <div class="card border-success h-100">
+
+                        <div class="card-body">
+
+                            <h5 class="card-title">Organic Farming Scheme</h5>
+
+                            <p class="card-text">
+                                Financial support for adopting sustainable and organic farming practices.
+                            </p>
+
+                            <button class="btn btn-success">
+                                Apply
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Quick Actions -->
+
+        <div class="section-box">
+
+            <h3 class="section-title">Quick Actions</h3>
+
+            <div class="row text-center">
+
+                <div class="col-md-3 mb-3">
+                    <a href="{{ url_for('register_produce') }}" class="btn btn-success w-100 py-3">
+                        🌾<br><br>
+                        Register Produce
+                    </a>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <a href="{{ url_for('my_produce') }}" class="btn btn-primary w-100 py-3">
+                        📦<br><br>
+                        My Produce
+                    </a>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <a href="#" class="btn btn-warning w-100 py-3">
+                        📊<br><br>
+                        Sales History
+                    </a>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <a href="#" class="btn btn-dark w-100 py-3">
+                        💰<br><br>
+                        View Subsidies
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

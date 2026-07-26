@@ -1,3 +1,5 @@
+import os
+from werkzeug.utils import secure_filename
 from flask import Flask,render_template,request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -6,8 +8,15 @@ from werkzeug.security import check_password_hash
 from flask import session
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "HarvestIQ@123"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///site.db"
+
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "connect_args": {
+        "timeout": 30
+    }
+}
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["UPLOAD_FOLDER"] = "static/uploads"
 db = SQLAlchemy(app)
 # ==========================
 # User Model
@@ -239,6 +248,7 @@ class QualityInspection(db.Model):
     freshness = db.Column(db.String(30))
     damaged_percentage = db.Column(db.Float)
     inspection_date = db.Column(db.Date)
+    image = db.Column(db.String(200))
 
     batch = db.relationship(
         "ProduceBatch",
@@ -479,7 +489,7 @@ def register():
         existing_user = User.query.filter_by(email=email).first()
 
         if existing_user:
-            flash("Email already exists!")
+            flash("Email already exists!", "danger")
             return redirect(url_for("register"))
 
         password_hash = generate_password_hash(password)
@@ -534,7 +544,7 @@ def register():
         # Save to database
         db.session.commit()
 
-        flash("Registration Successful! Please Login.")
+        flash("Registration Successful! Please Login.", "success")
 
         return redirect(url_for("login"))
 
@@ -554,9 +564,9 @@ def login():
             session["user_id"] = user.id
             session["role"] = user.role
             session["name"] = user.full_name
-
+            flash("Login successful! Welcome to HarvestIQ.", "success")
             if user.role == "Farmer":
-                return "Farmer Dashboard"
+                return redirect(url_for("farmer_dashboard"))
 
             elif user.role == "Buyer":
                 return "Buyer Dashboard"
@@ -564,7 +574,7 @@ def login():
             elif user.role == "Logistics":
                 return "logistics_dashboard"
 
-        flash("Invalid Email or Password")
+        flash("Invalid Email or Password","danger")
 
     return render_template("login.html")
 @app.route("/logout")
@@ -575,6 +585,437 @@ def logout():
     flash("Logged out successfully.", "success")
 
     return redirect(url_for("home"))
+@app.route("/farmer_dashboard")
+def farmer_dashboard():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    farmer = Farmer.query.filter_by(user_id=user.id).first()
+
+    total_batches = ProduceBatch.query.filter_by(farmer_id=farmer.id).count()
+
+    recent_batches = ProduceBatch.query.filter_by(
+        farmer_id=farmer.id
+    ).order_by(
+        ProduceBatch.harvest_date.desc()
+    ).limit(5).all()
+
+    return render_template(
+        "farmer_dashboard.html",
+        user=user,
+        farmer=farmer,
+        total_batches=total_batches,
+        recent_batches=recent_batches
+    )
+@app.route("/profile")
+def profile():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    farmer = Farmer.query.filter_by(user_id=user.id).first()
+
+    return render_template(
+        "profile.html",
+        user=user,
+        farmer=farmer
+    )
+@app.route("/register_produce", methods=["GET", "POST"])
+def register_produce():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    farmer = Farmer.query.filter_by(user_id=user.id).first()
+
+    if request.method == "POST":
+
+        batch = ProduceBatch(
+
+            farmer_id=farmer.id,
+
+            crop_name=request.form["crop_name"],
+
+            variety=request.form["variety"],
+
+            quantity=int(request.form["quantity"]),
+
+            unit=request.form["unit"],
+
+            harvest_date=datetime.strptime(
+                request.form["harvest_date"],
+                "%Y-%m-%d"
+            ).date(),
+
+            farm_location=request.form["farm_location"],
+
+            status="Registered"
+
+        )
+
+        db.session.add(batch)
+        db.session.commit()
+
+        flash("Produce Registered Successfully!", "success")
+
+        return redirect(url_for("farmer_dashboard"))
+
+    return render_template("register_produce.html")
+@app.route("/my_produce")
+def my_produce():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    farmer = Farmer.query.filter_by(user_id=user.id).first()
+
+    batches = ProduceBatch.query.filter_by(
+        farmer_id=farmer.id
+    ).order_by(
+        ProduceBatch.harvest_date.desc()
+    ).all()
+
+    return render_template(
+        "my_produce.html",
+        batches=batches
+    )
+@app.route("/delete_produce/<int:batch_id>")
+def delete_produce(batch_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    db.session.delete(batch)
+    db.session.commit()
+
+    flash("Produce deleted successfully!", "success")
+
+    return redirect(url_for("my_produce"))
+@app.route("/edit_produce/<int:batch_id>", methods=["GET", "POST"])
+def edit_produce(batch_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    if request.method == "POST":
+
+        batch.crop_name = request.form["crop_name"]
+        batch.variety = request.form["variety"]
+        batch.quantity = int(request.form["quantity"])
+        batch.unit = request.form["unit"]
+        batch.harvest_date = datetime.strptime(
+            request.form["harvest_date"],
+            "%Y-%m-%d"
+        ).date()
+        batch.farm_location = request.form["farm_location"]
+
+        db.session.commit()
+
+        flash("Produce updated successfully!", "success")
+
+        return redirect(url_for("my_produce"))
+
+    return render_template(
+        "edit_produce.html",
+        batch=batch
+    )
+@app.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    farmer = Farmer.query.filter_by(user_id=user.id).first()
+
+    if request.method == "POST":
+
+        # User details
+        user.full_name = request.form["full_name"]
+        user.phone = request.form["phone"]
+
+        # Farmer details
+        farmer.state = request.form["state"]
+        farmer.district = request.form["district"]
+        farmer.land_size = float(request.form["land_size"])
+        farmer.farmer_type = request.form["farmer_type"]
+        farmer.income_category = request.form["income_category"]
+
+        farmer.fpo_member = True if request.form.get("fpo_member") else False
+
+        db.session.commit()
+
+        flash("Profile updated successfully!", "success")
+
+        return redirect(url_for("profile"))
+
+    return render_template(
+        "edit_profile.html",
+        user=user,
+        farmer=farmer
+    )
+@app.route("/quality_inspection/<int:batch_id>", methods=["GET", "POST"])
+def quality_inspection(batch_id):
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    if request.method == "POST":
+
+        image = request.files["image"]
+
+        filename = secure_filename(image.filename)
+
+        image.save(
+            os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                filename
+            )
+        )
+
+        inspection = QualityInspection.query.filter_by(
+            batch_id=batch.id
+        ).first()
+
+        if inspection is None:
+
+            inspection = QualityInspection(
+                batch_id=batch.id
+            )
+
+            db.session.add(inspection)
+
+        inspection.image = filename
+
+        # Dummy AI Result
+        inspection.quality_grade = "A"
+        inspection.quality_score = 95
+        inspection.freshness = "Fresh"
+        inspection.damaged_percentage = 3
+        inspection.inspection_date = datetime.today()
+
+        db.session.commit()
+
+        flash("Quality Inspection Completed!", "success")
+
+        return redirect(url_for("inspection_result", batch_id=batch.id))
+
+    return render_template(
+        "quality_inspection.html",
+        batch=batch
+    )
+@app.route("/inspection_result/<int:batch_id>")
+def inspection_result(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    inspection = QualityInspection.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    return render_template(
+        "inspection_result.html",
+        batch=batch,
+        inspection=inspection
+    )
+@app.route("/shelf_life_prediction/<int:batch_id>")
+def shelf_life_prediction(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    prediction = ShelfLifePrediction.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    if prediction is None:
+
+        prediction = ShelfLifePrediction(
+            batch_id=batch.id,
+            predicted_days=8,
+            confidence=96.5,
+            spoilage_risk="Low"
+        )
+
+        db.session.add(prediction)
+        db.session.commit()
+
+    return render_template(
+        "shelf_life.html",
+        batch=batch,
+        prediction=prediction
+    )
+@app.route("/delivery_tracking/<int:batch_id>")
+def delivery_tracking(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    delivery = Delivery.query.filter_by(batch_id=batch.id).first()
+
+    if delivery is None:
+
+        logistics = LogisticsProvider.query.first()
+
+        if logistics is None:
+            flash("Please register a Logistics Provider first.", "warning")
+            return redirect(url_for("register"))
+
+        delivery = Delivery(
+            batch_id=batch.id,
+            logistics_id=logistics.id,
+            source=batch.farm_location,
+            destination="Hyderabad Fruit Market",
+            status="Preparing",
+            eta=datetime.now(),
+            transport_temperature=6
+        )
+
+        db.session.add(delivery)
+        db.session.commit()
+
+    return render_template(
+        "delivery_tracking.html",
+        batch=batch,
+        delivery=delivery
+    )
+@app.route("/mark_delivered/<int:delivery_id>")
+def mark_delivered(delivery_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    delivery = Delivery.query.get_or_404(delivery_id)
+
+    delivery.status = "Delivered"
+
+    db.session.commit()
+
+    flash("Delivery marked as completed!", "success")
+
+    return redirect(
+        url_for(
+            "delivery_tracking",
+            batch_id=delivery.batch_id
+        )
+    )
+@app.route("/buyer_recommendation/<int:batch_id>")
+def buyer_recommendation(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    recommendation = Recommendation.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    if recommendation is None:
+
+        recommendation = Recommendation(
+            batch_id=batch.id,
+            recommendation_type="Wholesale Market",
+            suggested_destination="Hyderabad Fruit Market",
+            estimated_price=6500,
+            reason="High quality produce with low spoilage risk. Suitable for wholesale buyers."
+        )
+
+        db.session.add(recommendation)
+        db.session.commit()
+
+    return render_template(
+        "buyer_recommendation.html",
+        batch=batch,
+        recommendation=recommendation
+    )
+@app.route("/confirm_sale/<int:batch_id>", methods=["GET", "POST"])
+def confirm_sale(batch_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    recommendation = Recommendation.query.filter_by(
+        batch_id=batch.id
+    ).first()
+
+    buyers = Buyer.query.all()
+
+    if request.method == "POST":
+
+        buyer_id = request.form["buyer_id"]
+
+        sale = Sale.query.filter_by(batch_id=batch.id).first()
+
+        if sale is None:
+
+            sale = Sale(
+                batch_id=batch.id,
+                buyer_id=buyer_id,
+                sale_price=recommendation.estimated_price,
+                quantity_sold=batch.quantity,
+                sale_date=datetime.today()
+            )
+
+            db.session.add(sale)
+
+        batch.status = "Sold"
+
+        db.session.commit()
+
+        flash("Sale completed successfully!", "success")
+
+        return redirect(url_for("sale_receipt", sale_id=sale.id))
+
+    return render_template(
+        "confirm_sale.html",
+        batch=batch,
+        buyers=buyers,
+        recommendation=recommendation
+    )
+@app.route("/sale_receipt/<int:sale_id>")
+def sale_receipt(sale_id):
+
+    if "user_id" not in session:
+        flash("Please login first.", "warning")
+        return redirect(url_for("login"))
+
+    sale = Sale.query.get_or_404(sale_id)
+
+    return render_template(
+        "sale_receipt.html",
+        sale=sale
+    )
 # ==========================
 # Run Application
 # ==========================

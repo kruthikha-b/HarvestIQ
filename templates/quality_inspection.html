@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Quality Inspection{% endblock %}
+
+{% block content %}
+
+<style>
+    .inspect-container {
+        max-width: 900px;
+        margin: 50px auto;
+    }
+
+    .inspect-card {
+        background: white;
+        border-radius: 20px;
+        padding: 35px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, .08);
+    }
+
+    .inspect-card h2 {
+        color: #1d4d2b;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .batch-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+
+    .batch-info h5 {
+        color: #1d4d2b;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    .btn-analyse {
+        background: #2e7d32;
+        color: white;
+    }
+
+    .btn-analyse:hover {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="container inspect-container">
+
+    <div class="inspect-card">
+
+        <h2>🤖 AI Quality Inspection</h2>
+
+        <div class="batch-info">
+
+            <h5>Produce Details</h5>
+
+            <p><strong>Crop :</strong> {{ batch.crop_name }}</p>
+
+            <p><strong>Variety :</strong> {{ batch.variety }}</p>
+
+            <p><strong>Quantity :</strong> {{ batch.quantity }} {{ batch.unit }}</p>
+
+            <p><strong>Harvest Date :</strong> {{ batch.harvest_date }}</p>
+
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <div class="mb-4">
+
+                <label class="form-label">
+
+                    Upload Produce Image
+
+                </label>
+
+                <input type="file" name="image" class="form-control" accept="image/*" required>
+
+            </div>
+            <div class="text-center mt-4">
+
+                <button type="submit" class="btn btn-analyse px-5">
+
+                    Analyse Produce
+
+                </button>
+
+                <a href="{{ url_for('my_produce') }}" class="btn btn-secondary px-5 ms-2">
+
+                    Back
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

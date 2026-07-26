@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}My Produce{% endblock %}
+
+{% block content %}
+
+<style>
+    .produce-box {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 40px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    }
+
+    .produce-box h2 {
+        color: #1d4d2b;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    .table th {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="container">
+
+    <div class="produce-box">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h2>🌾 My Produce</h2>
+
+            <a href="{{ url_for('register_produce') }}" class="btn btn-success">
+
+                + Register Produce
+
+            </a>
+
+        </div>
+
+        <table class="table table-bordered table-hover">
+
+            <thead>
+
+                <tr>
+
+                    <th>Crop</th>
+                    <th>Variety</th>
+                    <th>Quantity</th>
+                    <th>Harvest Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for batch in batches %}
+
+                <tr>
+
+                    <td>{{ batch.crop_name }}</td>
+
+                    <td>{{ batch.variety }}</td>
+
+                    <td>{{ batch.quantity }} {{ batch.unit }}</td>
+
+                    <td>{{ batch.harvest_date }}</td>
+
+                    <td>
+
+                        <span class="badge bg-success">
+
+                            {{ batch.status }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <a href="{{ url_for('edit_produce', batch_id=batch.id) }}" class="btn btn-warning btn-sm">
+                            Edit
+                        </a>
+
+                        <a href="{{ url_for('quality_inspection', batch_id=batch.id) }}" class="btn btn-success btn-sm">
+                            Inspect
+                        </a>
+                        <a href="{{ url_for('inspection_result', batch_id=batch.id) }}" class="btn btn-info btn-sm">
+                            Report
+                        </a>
+
+                        <a href="{{ url_for('delete_produce', batch_id=batch.id) }}" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Delete this produce?')">
+                            Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+                {% if batches|length == 0 %}
+
+                <tr>
+
+                    <td colspan="6" class="text-center">
+
+                        No produce registered yet.
+
+                    </td>
+
+                </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+        <div class="text-center mt-4">
+
+            <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-secondary">
+
+                ← Back to Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Buyer Recommendation{% endblock %}
+
+{% block content %}
+
+<style>
+    .recommend-container {
+        max-width: 950px;
+        margin: 50px auto;
+    }
+
+    .recommend-card {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, .08);
+    }
+
+    .recommend-card h2 {
+        text-align: center;
+        color: #1d4d2b;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .info-card h5 {
+        color: #1d4d2b;
+        font-weight: bold;
+    }
+
+    .value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2e7d32;
+    }
+
+    .reason-box {
+        background: #e8f5e9;
+        border-left: 6px solid #2e7d32;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container recommend-container">
+
+    <div class="recommend-card">
+
+        <h2>🤖 AI Buyer Recommendation</h2>
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <div class="info-card">
+
+                    <h5>Produce</h5>
+
+                    <div class="value">
+
+                        {{ batch.crop_name }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-card">
+
+                    <h5>Recommendation Type</h5>
+
+                    <div class="value">
+
+                        {{ recommendation.recommendation_type }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-card">
+
+                    <h5>Suggested Buyer</h5>
+
+                    <div class="value">
+
+                        {{ recommendation.suggested_destination }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <div class="info-card">
+
+                    <h5>Estimated Selling Price</h5>
+
+                    <div class="value">
+
+                        ₹ {{ recommendation.estimated_price }}
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-md-12">
+
+                <div class="reason-box">
+
+                    <h5 class="text-success mb-3">
+                        📝 AI Recommendation Reason
+                    </h5>
+
+                    <p class="mb-0">
+
+                        {{ recommendation.reason }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="alert alert-warning">
+
+            <h5>💰 Profit Tip</h5>
+
+            <p class="mb-0">
+
+                Sell this produce within the predicted shelf life to maximise profit.
+                The recommended buyer offers the best estimated price based on quality,
+                freshness, and market demand.
+
+            </p>
+
+        </div>
+
+        <div class="text-center mt-4">
+
+            <a href="{{ url_for('confirm_sale', batch_id=batch.id) }}" class="btn btn-success px-4">
+
+                💰 Confirm Sale
+
+            </a>
+
+            <a href="{{ url_for('shelf_life_prediction', batch_id=batch.id) }}" class="btn btn-secondary px-4 ms-2">
+
+                ⏳ Shelf Life
+
+            </a>
+
+            <a href="{{ url_for('my_produce') }}" class="btn btn-dark px-4 ms-2">
+
+                📦 My Produce
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
