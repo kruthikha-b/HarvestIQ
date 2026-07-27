@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery Details{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4">Delivery Details</h2>
+
+        <table class="table">
+
+            <tr>
+                <th>Delivery ID</th>
+                <td>{{ delivery.id }}</td>
+            </tr>
+
+            <tr>
+                <th>Status</th>
+                <td>{{ delivery.status }}</td>
+            </tr>
+
+            <tr>
+                <th>Source</th>
+                <td>{{ delivery.source }}</td>
+            </tr>
+
+            <tr>
+                <th>Destination</th>
+                <td>{{ delivery.destination }}</td>
+            </tr>
+
+            <tr>
+                <th>ETA</th>
+                <td>{{ delivery.eta }}</td>
+            </tr>
+
+            <tr>
+                <th>Transport Temperature</th>
+                <td>{{ delivery.transport_temperature }} °C</td>
+            </tr>
+
+            <tr>
+                <th>Crop</th>
+                <td>{{ delivery.batch.crop_name }}</td>
+            </tr>
+
+            <tr>
+                <th>Quantity</th>
+                <td>{{ delivery.batch.quantity }} {{ delivery.batch.unit }}</td>
+            </tr>
+        </table>
+
+        <a href="{{ url_for('logistics_dashboard') }}" class="btn btn-success">
+            Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

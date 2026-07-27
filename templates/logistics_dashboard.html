@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Logistics Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 50px 0;
+    }
+
+    .welcome-card {
+        background: #1d4d2b;
+        color: white;
+        padding: 35px;
+        border-radius: 20px;
+        margin-bottom: 35px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 18px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+        height: 100%;
+    }
+
+    .stat-card h2 {
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .section-box {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="welcome-card">
+
+            <h2>
+                Welcome,
+                {{ logistics.company_name }}
+                🚚
+            </h2>
+
+            <p>
+                Track deliveries and monitor transportation status.
+            </p>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+
+                <div class="stat-card">
+
+                    <h5>Total Deliveries</h5>
+
+                    <h2>{{ total_deliveries }}</h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <div class="stat-card">
+
+                    <h5>Active Deliveries</h5>
+
+                    <h2>{{ active_deliveries }}</h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-3">
+
+                <div class="stat-card">
+
+                    <h5>Completed Deliveries</h5>
+
+                    <h2>{{ completed_deliveries }}</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="section-box">
+
+            <h3 class="mb-4">
+                Current Deliveries
+            </h3>
+
+            {% if deliveries %}
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-success">
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                        <th>ETA</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for delivery in deliveries %}
+
+                    <tr>
+
+                        <td>{{ delivery.id }}</td>
+
+                        <td>{{ delivery.source }}</td>
+
+                        <td>{{ delivery.destination }}</td>
+
+                        <td>
+                            <span class="badge bg-success">
+                                {{ delivery.status }}
+                            </span>
+                        </td>
+
+                        <td>{{ delivery.eta }}</td>
+                        <td>
+
+                            <a href="{{ url_for('delivery_details', delivery_id=delivery.id) }}"
+                                class="btn btn-success btn-sm">
+                                View
+                            </a>
+
+                            <a href="{{ url_for('update_delivery', delivery_id=delivery.id) }}"
+                                class="btn btn-warning btn-sm">
+                                Update
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="alert alert-warning text-center">
+
+                No deliveries assigned.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <div class="section-box">
+
+            <h3 class="mb-4">
+                Quick Actions
+            </h3>
+
+            <div class="row justify-content-center text-center g-3">
+
+                <div class="col-md-4">
+
+                    <a href="{{ url_for('delivery_history') }}" class="btn btn-primary w-100 py-3">
+
+                        📦<br><br>
+
+                        Delivery History
+
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

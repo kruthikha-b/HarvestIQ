@@ -572,7 +572,7 @@ def login():
                 return redirect(url_for("buyer_dashboard"))
 
             elif user.role == "Logistics":
-                return "logistics_dashboard"
+                return redirect(url_for("logistics_dashboard"))
 
         flash("Invalid Email or Password","danger")
 
@@ -1195,48 +1195,41 @@ def purchase_history():
         "purchase_history.html",
         purchases=purchases
     )
-@app.route("/buy_produce/<int:batch_id>")
+@app.route("/buy_produce/<int:batch_id>", methods=["GET", "POST"])
 def buy_produce(batch_id):
 
     if "user_id" not in session:
-        flash("Please login first.", "warning")
         return redirect(url_for("login"))
 
-    buyer = Buyer.query.filter_by(
-        user_id=session["user_id"]
-    ).first_or_404()
+    user = User.query.get(session["user_id"])
+    buyer = Buyer.query.filter_by(user_id=user.id).first()
 
     batch = ProduceBatch.query.get_or_404(batch_id)
 
-    if batch.status == "Sold":
-        flash("This produce has already been sold.", "danger")
-        return redirect(url_for("available_produce"))
+    if request.method == "POST":
 
-    recommendation = Recommendation.query.filter_by(
-        batch_id=batch.id
-    ).first()
+        sale = Sale(
+            batch_id=batch.id,
+            buyer_id=buyer.id,
+            sale_price=float(request.form["sale_price"]),
+            quantity_sold=int(request.form["quantity"]),
+            sale_date=date.today()
+        )
 
-    if recommendation:
-        price = recommendation.estimated_price
-    else:
-        price = 5000
+        batch.status = "Sold"
 
-    sale = Sale(
-        batch_id=batch.id,
-        buyer_id=buyer.id,
-        sale_price=price,
-        quantity_sold=batch.quantity,
-        sale_date=date.today()
+        db.session.add(sale)
+        db.session.commit()
+
+        flash("Purchase Successful!", "success")
+
+        return redirect(url_for("buyer_receipt", sale_id=sale.id))
+
+    return render_template(
+        "buy_produce.html",
+        batch=batch,
+        buyer=buyer
     )
-
-    batch.status = "Sold"
-
-    db.session.add(sale)
-    db.session.commit()
-
-    flash("Purchase completed successfully!", "success")
-
-    return redirect(url_for("sale_receipt", sale_id=sale.id))
 @app.route("/buyer_receipt/<int:sale_id>")
 def buyer_receipt(sale_id):
 
@@ -1311,6 +1304,139 @@ def update_buyer_profile():
     flash("Buyer profile updated successfully!", "success")
 
     return redirect(url_for("buyer_profile"))
+@app.route("/logistics_dashboard")
+def logistics_dashboard():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    logistics = LogisticsProvider.query.filter_by(
+        user_id=user.id
+    ).first()
+
+    if logistics is None:
+        flash("Logistics profile not found.", "danger")
+        return redirect(url_for("logout"))
+
+    deliveries = Delivery.query.filter_by(
+        logistics_id=logistics.id
+    ).all()
+
+    total_deliveries = len(deliveries)
+
+    active_deliveries = Delivery.query.filter(
+        Delivery.logistics_id == logistics.id,
+        Delivery.status != "Delivered"
+    ).count()
+
+    completed_deliveries = Delivery.query.filter_by(
+        logistics_id=logistics.id,
+        status="Delivered"
+    ).count()
+
+    return render_template(
+        "logistics_dashboard.html",
+        user=user,
+        logistics=logistics,
+        deliveries=deliveries,
+        total_deliveries=total_deliveries,
+        active_deliveries=active_deliveries,
+        completed_deliveries=completed_deliveries
+    )
+@app.route("/logistics_profile")
+def logistics_profile():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    logistics = LogisticsProvider.query.filter_by(
+        user_id=user.id
+    ).first()
+
+    return render_template(
+        "logistics_profile.html",
+        user=user,
+        logistics=logistics
+    )
+@app.route("/update_logistics_profile", methods=["POST"])
+def update_logistics_profile():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+
+    logistics = LogisticsProvider.query.filter_by(
+        user_id=user.id
+    ).first()
+
+    user.full_name = request.form["full_name"]
+    user.email = request.form["email"]
+    user.phone = request.form["phone"]
+
+    logistics.company_name = request.form["company_name"]
+
+    db.session.commit()
+
+    session["name"] = user.full_name
+
+    flash("Profile updated successfully!", "success")
+
+    return redirect(url_for("logistics_profile"))
+@app.route("/delivery_details/<int:delivery_id>")
+def delivery_details(delivery_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    delivery = Delivery.query.get_or_404(delivery_id)
+
+    return render_template(
+        "delivery_details.html",
+        delivery=delivery
+    )
+@app.route("/delivery_history")
+def delivery_history():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.get(session["user_id"])
+    logistics = LogisticsProvider.query.filter_by(user_id=user.id).first()
+
+    deliveries = Delivery.query.filter_by(
+        logistics_id=logistics.id
+    ).order_by(Delivery.id.desc()).all()
+
+    return render_template(
+        "delivery_history.html",
+        deliveries=deliveries
+    )
+@app.route("/update_delivery/<int:delivery_id>", methods=["GET", "POST"])
+def update_delivery(delivery_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    delivery = Delivery.query.get_or_404(delivery_id)
+
+    if request.method == "POST":
+
+        delivery.status = request.form["status"]
+        db.session.commit()
+
+        flash("Delivery status updated successfully!", "success")
+
+        return redirect(url_for("logistics_dashboard"))
+
+    return render_template(
+        "update_delivery.html",
+        delivery=delivery
+    )
 # ==========================
 # Run Application
 # ==========================

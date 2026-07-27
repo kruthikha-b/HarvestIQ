@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery History{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="text-success mb-4">
+            Delivery History
+        </h2>
+
+        {% if deliveries %}
+
+        <table class="table table-bordered table-hover">
+
+            <thead class="table-success">
+                <tr>
+                    <th>Crop</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>ETA</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for delivery in deliveries %}
+
+                <tr>
+
+                    <td>{{ delivery.batch.crop_name }}</td>
+
+                    <td>{{ delivery.destination }}</td>
+
+                    <td>{{ delivery.status }}</td>
+
+                    <td>{{ delivery.eta }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <div class="alert alert-warning text-center">
+
+            No deliveries found.
+
+        </div>
+
+        {% endif %}
+
+        <a href="{{ url_for('logistics_dashboard') }}"
+           class="btn btn-success">
+            Back
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

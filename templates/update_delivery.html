@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Update Delivery{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4 text-success">
+            Update Delivery Status
+        </h2>
+
+        <form method="POST">
+
+            <div class="mb-3">
+                <label class="form-label">Crop</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ delivery.batch.crop_name }}"
+                       readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Source</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ delivery.source }}"
+                       readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Destination</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ delivery.destination }}"
+                       readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Current Status</label>
+
+                <select name="status" class="form-select">
+
+                    <option value="Pending"
+                    {% if delivery.status=="Pending" %}selected{% endif %}>
+                        Pending
+                    </option>
+
+                    <option value="In Transit"
+                    {% if delivery.status=="In Transit" %}selected{% endif %}>
+                        In Transit
+                    </option>
+
+                    <option value="Delivered"
+                    {% if delivery.status=="Delivered" %}selected{% endif %}>
+                        Delivered
+                    </option>
+
+                </select>
+            </div>
+
+            <button class="btn btn-success">
+                Update Status
+            </button>
+
+            <a href="{{ url_for('logistics_dashboard') }}"
+               class="btn btn-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
