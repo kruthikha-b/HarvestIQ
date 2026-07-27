@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Deliveries{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    }
+
+    .card-header {
+        background: #1d4d2b;
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    table th {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="card-header">
+
+                🚚 Manage Deliveries
+
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Batch</th>
+                            <th>Logistics</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                            <th>Temperature</th>
+                            <th>ETA</th>
+                            <th>Status</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for delivery in deliveries %}
+
+                        <tr>
+
+                            <td>{{ delivery.id }}</td>
+
+                            <td>{{ delivery.batch.crop_name }}</td>
+
+                            <td>{{ delivery.logistics.company_name }}</td>
+
+                            <td>{{ delivery.source }}</td>
+
+                            <td>{{ delivery.destination }}</td>
+
+                            <td>{{ delivery.transport_temperature }} °C</td>
+
+                            <td>{{ delivery.eta.strftime('%d-%m-%Y %H:%M') }}</td>
+
+                            <td>
+
+                                {% if delivery.status=="Delivered" %}
+
+                                <span class="badge bg-success">
+                                    Delivered
+                                </span>
+
+                                {% elif delivery.status=="In Transit" %}
+
+                                <span class="badge bg-primary">
+                                    In Transit
+                                </span>
+
+                                {% elif delivery.status=="Delayed" %}
+
+                                <span class="badge bg-danger">
+                                    Delayed
+                                </span>
+
+                                {% else %}
+
+                                <span class="badge bg-secondary">
+                                    {{ delivery.status }}
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <a href="{{ url_for('edit_delivery', delivery_id=delivery.id) }}"
+                                    class="btn btn-warning btn-sm">
+
+                                    Edit
+
+                                </a>
+
+                                <a href="{{ url_for('delete_delivery', delivery_id=delivery.id) }}"
+                                    class="btn btn-danger btn-sm" onclick="return confirm('Delete this delivery?')">
+
+                                    Delete
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1531,13 +1531,6 @@ def delete_batch(batch_id):
     flash("Batch deleted successfully!", "success")
 
     return redirect(url_for("manage_batches"))
-
-
-@app.route("/manage-deliveries")
-def manage_deliveries():
-    return "<h2>Manage Deliveries Page (Coming Soon)</h2>"
-
-
 @app.route("/manage-subsidies")
 def manage_subsidies():
 
@@ -1710,6 +1703,61 @@ def reports():
         pending_apps=pending_apps,
         approved_apps=approved_apps,
         rejected_apps=rejected_apps
+    )
+@app.route("/manage_deliveries")
+def manage_deliveries():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    deliveries = Delivery.query.order_by(Delivery.id.desc()).all()
+
+    return render_template(
+        "manage_deliveries.html",
+        deliveries=deliveries
+    )
+@app.route("/delete-delivery/<int:delivery_id>")
+def delete_delivery(delivery_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    delivery = Delivery.query.get_or_404(delivery_id)
+
+    db.session.delete(delivery)
+    db.session.commit()
+
+    flash("Delivery deleted successfully!", "success")
+
+    return redirect(url_for("manage_deliveries"))
+@app.route("/edit-delivery/<int:delivery_id>", methods=["GET", "POST"])
+def edit_delivery(delivery_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    delivery = Delivery.query.get_or_404(delivery_id)
+
+    if request.method == "POST":
+
+        delivery.source = request.form["source"]
+        delivery.destination = request.form["destination"]
+        delivery.transport_temperature = request.form["transport_temperature"]
+        delivery.status = request.form["status"]
+        delivery.eta = datetime.strptime(request.form["eta"],"%Y-%m-%dT%H:%M") if request.form["eta"] else None
+
+        db.session.commit()
+
+        flash("Delivery updated successfully!", "success")
+
+        return redirect(url_for("manage_deliveries"))
+
+    return render_template(
+        "edit_delivery.html",
+        delivery=delivery
     )
 # ==========================
 # Run Application
