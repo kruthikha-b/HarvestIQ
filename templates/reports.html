@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 40px;
+    }
+
+    .report-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+        text-align: center;
+        padding: 25px;
+        transition: .3s;
+    }
+
+    .report-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .number {
+        font-size: 35px;
+        font-weight: bold;
+        color: #1d4d2b;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <h2 class="mb-4">📊 HarvestIQ Reports</h2>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Total Users</h5>
+                    <div class="number">{{ total_users }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Farmers</h5>
+                    <div class="number">{{ total_farmers }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Buyers</h5>
+                    <div class="number">{{ total_buyers }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Logistics</h5>
+                    <div class="number">{{ total_logistics }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Produce Batches</h5>
+                    <div class="number">{{ total_batches }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Registered</h5>
+                    <div class="number">{{ registered }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Sales</h5>
+                    <div class="number">{{ total_sales }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="report-card">
+                    <h5>Deliveries</h5>
+                    <div class="number">{{ total_deliveries }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5>Pending Subsidies</h5>
+                    <div class="number">{{ pending_apps }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5>Approved</h5>
+                    <div class="number">{{ approved_apps }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="report-card">
+                    <h5>Rejected</h5>
+                    <div class="number">{{ rejected_apps }}</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

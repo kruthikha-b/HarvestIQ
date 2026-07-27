@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Produce{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    }
+
+    .card-header {
+        background: #1d4d2b;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    table th {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="card-header">
+                🌾 Manage Produce Batches
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Crop</th>
+                            <th>Quantity</th>
+                            <th>Harvest Date</th>
+                            <th>Farmer</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+                    <thead>
+                        <tr>
+                            <th>Batch ID</th>
+                            <th>Crop</th>
+                            <th>Variety</th>
+                            <th>Quantity</th>
+                            <th>Location</th>
+                            <th>Farmer</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for batch in batches %}
+
+                        <tr>
+
+                            <td>{{ batch.id }}</td>
+
+                            <td>{{ batch.crop_name }}</td>
+
+                            <td>{{ batch.variety }}</td>
+
+                            <td>{{ batch.quantity }} {{ batch.unit }}</td>
+
+                            <td>{{ batch.farm_location }}</td>
+
+                            <td>{{ batch.farmer.user.full_name }}</td>
+
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ batch.status }}
+                                </span>
+                            </td>
+
+                            <td>
+
+                                <a href="{{ url_for('delete_batch', batch_id=batch.id) }}" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Delete this batch?')">
+
+                                    Delete
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -573,6 +573,8 @@ def login():
 
             elif user.role == "Logistics":
                 return redirect(url_for("logistics_dashboard"))
+            elif user.role=="Admin":
+                return redirect(url_for("admin_dashboard"))
 
         flash("Invalid Email or Password","danger")
 
@@ -1437,6 +1439,278 @@ def update_delivery(delivery_id):
         "update_delivery.html",
         delivery=delivery
     )
+@app.route("/admin")
+def admin_dashboard():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    total_users = User.query.count()
+    total_farmers = User.query.filter_by(role="Farmer").count()
+    total_buyers = User.query.filter_by(role="Buyer").count()
+    total_logistics = User.query.filter_by(role="Logistics").count()
+
+    total_batches = ProduceBatch.query.count()
+    total_sales = Sale.query.count()
+    total_deliveries = Delivery.query.count()
+    total_subsidies = Subsidy.query.count()
+    recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+    recent_batches = ProduceBatch.query.order_by(ProduceBatch.harvest_date.desc()).limit(5).all()
+
+    return render_template(
+        "admin_dashboard.html",
+        total_users=total_users,
+        total_farmers=total_farmers,
+        total_buyers=total_buyers,
+        total_logistics=total_logistics,
+        total_batches=total_batches,
+        total_sales=total_sales,
+        total_deliveries=total_deliveries,
+        total_subsidies=total_subsidies,
+        recent_users=recent_users,
+        recent_batches=recent_batches
+        )
+@app.route("/manage-users")
+def manage_users():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    users = User.query.order_by(User.created_at.desc()).all()
+
+    return render_template("manage_users.html", users=users)
+@app.route("/delete-user/<int:user_id>")
+def delete_user(user_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    user = User.query.get_or_404(user_id)
+
+    if user.role == "Admin":
+        flash("Admin account cannot be deleted.", "danger")
+        return redirect(url_for("manage_users"))
+
+    db.session.delete(user)
+    db.session.commit()
+
+    flash("User deleted successfully!", "success")
+    return redirect(url_for("manage_users"))
+
+
+@app.route("/manage-batches")
+def manage_batches():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    batches = ProduceBatch.query.order_by(
+        ProduceBatch.harvest_date.desc()
+    ).all()
+
+    return render_template(
+        "manage_batches.html",
+        batches=batches
+    )
+@app.route("/delete-batch/<int:batch_id>")
+def delete_batch(batch_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    batch = ProduceBatch.query.get_or_404(batch_id)
+
+    db.session.delete(batch)
+    db.session.commit()
+
+    flash("Batch deleted successfully!", "success")
+
+    return redirect(url_for("manage_batches"))
+
+
+@app.route("/manage-deliveries")
+def manage_deliveries():
+    return "<h2>Manage Deliveries Page (Coming Soon)</h2>"
+
+
+@app.route("/manage-subsidies")
+def manage_subsidies():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    subsidies = Subsidy.query.order_by(Subsidy.id.desc()).all()
+
+    return render_template(
+        "manage_subsidies.html",
+        subsidies=subsidies
+    )
+@app.route("/add-subsidy", methods=["GET", "POST"])
+def add_subsidy():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+
+        subsidy = Subsidy(
+            name=request.form["name"],
+            state=request.form["state"],
+            eligibility=request.form["eligibility"],
+            benefits=request.form["benefits"],
+            last_date=datetime.strptime(
+                request.form["last_date"],
+                "%Y-%m-%d"
+            ).date(),
+            required_documents=request.form["required_documents"]
+        )
+
+        db.session.add(subsidy)
+        db.session.commit()
+
+        flash("Subsidy added successfully!", "success")
+
+        return redirect(url_for("manage_subsidies"))
+
+    return render_template("add_subsidy.html")
+@app.route("/edit-subsidy/<int:subsidy_id>", methods=["GET", "POST"])
+def edit_subsidy(subsidy_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    subsidy = Subsidy.query.get_or_404(subsidy_id)
+
+    if request.method == "POST":
+
+        subsidy.name = request.form["name"]
+        subsidy.state = request.form["state"]
+        subsidy.eligibility = request.form["eligibility"]
+        subsidy.benefits = request.form["benefits"]
+        subsidy.last_date = datetime.strptime(
+            request.form["last_date"],
+            "%Y-%m-%d"
+        ).date()
+        subsidy.required_documents = request.form["required_documents"]
+
+        db.session.commit()
+
+        flash("Subsidy updated successfully!", "success")
+
+        return redirect(url_for("manage_subsidies"))
+
+    return render_template(
+        "edit_subsidy.html",
+        subsidy=subsidy
+    )
+@app.route("/delete-subsidy/<int:subsidy_id>")
+def delete_subsidy(subsidy_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    subsidy = Subsidy.query.get_or_404(subsidy_id)
+
+    db.session.delete(subsidy)
+    db.session.commit()
+
+    flash("Subsidy deleted successfully!", "success")
+
+    return redirect(url_for("manage_subsidies"))
+@app.route("/subsidy-applications")
+def subsidy_applications():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    applications = SubsidyApplication.query.order_by(
+        SubsidyApplication.application_date.desc()
+    ).all()
+
+    return render_template(
+        "subsidy_applications.html",
+        applications=applications
+    )
+@app.route("/approve-application/<int:application_id>")
+def approve_application(application_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    application = SubsidyApplication.query.get_or_404(application_id)
+
+    application.status = "Approved"
+
+    db.session.commit()
+
+    flash("Application approved successfully!", "success")
+
+    return redirect(url_for("subsidy_applications"))
+@app.route("/reject-application/<int:application_id>")
+def reject_application(application_id):
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    application = SubsidyApplication.query.get_or_404(application_id)
+
+    application.status = "Rejected"
+
+    db.session.commit()
+
+    flash("Application rejected.", "warning")
+
+    return redirect(url_for("subsidy_applications"))
+@app.route("/reports")
+def reports():
+
+    if "user_id" not in session or session["role"] != "Admin":
+        flash("Access denied!", "danger")
+        return redirect(url_for("login"))
+
+    total_users = User.query.count()
+    total_farmers = User.query.filter_by(role="Farmer").count()
+    total_buyers = User.query.filter_by(role="Buyer").count()
+    total_logistics = User.query.filter_by(role="Logistics").count()
+
+    total_batches = ProduceBatch.query.count()
+
+    registered = ProduceBatch.query.filter_by(status="Registered").count()
+
+    total_sales = Sale.query.count()
+
+    total_deliveries = Delivery.query.count()
+
+    pending_apps = SubsidyApplication.query.filter_by(status="Pending").count()
+    approved_apps = SubsidyApplication.query.filter_by(status="Approved").count()
+    rejected_apps = SubsidyApplication.query.filter_by(status="Rejected").count()
+
+    return render_template(
+        "reports.html",
+        total_users=total_users,
+        total_farmers=total_farmers,
+        total_buyers=total_buyers,
+        total_logistics=total_logistics,
+        total_batches=total_batches,
+        registered=registered,
+        total_sales=total_sales,
+        total_deliveries=total_deliveries,
+        pending_apps=pending_apps,
+        approved_apps=approved_apps,
+        rejected_apps=rejected_apps
+    )
 # ==========================
 # Run Application
 # ==========================
@@ -1446,6 +1720,23 @@ if __name__ == "__main__":
 
         db.create_all()
 
+        # Create default admin account
+        admin = User.query.filter_by(email="admin@harvestiq.com").first()
+
+        if not admin:
+            admin = User(
+                full_name="System Administrator",
+                email="admin@harvestiq.com",
+                password_hash=generate_password_hash("Admin@123"),
+                phone="9999999999",
+                role="Admin"
+            )
+
+            db.session.add(admin)
+            db.session.commit()
+            print("Default admin account created!")
+
+        # Insert sample subsidies
         if Subsidy.query.count() == 0:
 
             db.session.add(Subsidy(

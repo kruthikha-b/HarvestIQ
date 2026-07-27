@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .welcome-card {
+        background: #1d4d2b;
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        transition: .3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .stat-icon {
+        font-size: 35px;
+    }
+
+    .stat-number {
+        font-size: 28px;
+        font-weight: bold;
+        color: #1d4d2b;
+    }
+
+    .section-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        margin-top: 30px;
+    }
+
+    .section-header {
+        background: #1d4d2b;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 15px 15px 0 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .quick-btn {
+        margin: 8px;
+        width: 220px;
+    }
+
+    table th {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <!-- Welcome -->
+
+        <div class="welcome-card">
+            <h2>Welcome, {{ session['full_name'] }} 👋</h2>
+            <p class="mb-0">
+                Monitor and manage the complete HarvestIQ platform.
+            </p>
+        </div>
+
+        <!-- Statistics -->
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number">{{ total_users }}</div>
+                    <h6>Total Users</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">🌾</div>
+                    <div class="stat-number">{{ total_farmers }}</div>
+                    <h6>Farmers</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">🛒</div>
+                    <div class="stat-number">{{ total_buyers }}</div>
+                    <h6>Buyers</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">🚚</div>
+                    <div class="stat-number">{{ total_logistics }}</div>
+                    <h6>Logistics</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-number">{{ total_batches }}</div>
+                    <h6>Produce Batches</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-number">{{ total_sales }}</div>
+                    <h6>Total Sales</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">🚛</div>
+                    <div class="stat-number">{{ total_deliveries }}</div>
+                    <h6>Deliveries</h6>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-3">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-number">{{ total_subsidies }}</div>
+                    <h6>Subsidies</h6>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Quick Actions -->
+
+        <div class="card section-card">
+
+            <div class="section-header">
+                ⚡ Quick Actions
+            </div>
+
+            <div class="card-body text-center">
+                <a href="{{ url_for('reports') }}" class="btn btn-success quick-btn">
+                    📊 Reports
+                </a>
+                <a href="{{ url_for('subsidy_applications') }}" class="btn btn-success quick-btn">
+                    Subsidy Applications
+                </a>
+
+                <a href="{{ url_for('manage_users') }}" class="btn btn-success quick-btn">
+                    Manage Users
+                </a>
+
+                <a href="{{ url_for('manage_batches') }}" class="btn btn-success quick-btn">
+                    Manage Produce
+                </a>
+
+                <a href="{{ url_for('manage_deliveries') }}" class="btn btn-success quick-btn">
+                    Manage Deliveries
+                </a>
+
+                <a href="{{ url_for('manage_subsidies') }}" class="btn btn-success quick-btn">
+                    Manage Subsidies
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Recent Users -->
+
+        <div class="card section-card">
+
+            <div class="section-header">
+                👥 Recent Users
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead>
+
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for user in recent_users %}
+
+                        <tr>
+
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.role }}</td>
+                            <td>{{ user.created_at.strftime('%d-%m-%Y') }}</td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                No users found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- Recent Produce -->
+
+        <div class="card section-card">
+
+            <div class="section-header">
+                🌾 Recent Produce Batches
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead>
+
+                        <tr>
+                            <th>Batch ID</th>
+                            <th>Crop</th>
+                            <th>Quantity</th>
+                            <th>Harvest Date</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for batch in recent_batches %}
+
+                        <tr>
+
+                            <td>{{ batch.id }}</td>
+                            <td>{{ batch.crop_name }}</td>
+                            <td>{{ batch.quantity }}</td>
+                            <td>{{ batch.harvest_date }}</td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                No batches available.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

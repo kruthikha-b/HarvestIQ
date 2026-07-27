@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Subsidy Applications{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    }
+
+    .card-header {
+        background: #1d4d2b;
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    table th {
+        background: #1d4d2b;
+        color: white;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="card-header">
+                📄 Farmer Subsidy Applications
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Farmer</th>
+                            <th>Subsidy</th>
+                            <th>Application Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for app in applications %}
+
+                        <tr>
+
+                            <td>{{ app.id }}</td>
+
+                            <td>{{ app.farmer.user.full_name }}</td>
+
+                            <td>{{ app.subsidy.name }}</td>
+
+                            <td>{{ app.application_date }}</td>
+
+                            <td>
+
+                                {% if app.status=="Pending" %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+
+                                {% elif app.status=="Approved" %}
+                                <span class="badge bg-success">Approved</span>
+
+                                {% else %}
+                                <span class="badge bg-danger">Rejected</span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if app.status=="Pending" %}
+
+                                <a href="{{ url_for('approve_application', application_id=app.id) }}"
+                                    class="btn btn-success btn-sm">
+
+                                    Approve
+
+                                </a>
+
+                                <a href="{{ url_for('reject_application', application_id=app.id) }}"
+                                    class="btn btn-danger btn-sm">
+
+                                    Reject
+
+                                </a>
+
+                                {% else %}
+
+                                <span class="text-muted">
+                                    Completed
+                                </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

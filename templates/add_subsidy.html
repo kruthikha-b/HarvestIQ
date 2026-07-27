@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Add Subsidy{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        background: #f5f7f2;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+        background: #1d4d2b;
+        color: white;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .btn-success {
+        background: #1d4d2b;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: #163a20;
+    }
+
+    label {
+        font-weight: 600;
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8">
+
+                <div class="card">
+
+                    <div class="card-header">
+                        ➕ Add Government Subsidy
+                    </div>
+
+                    <div class="card-body">
+
+                        <form method="POST">
+
+                            <div class="mb-3">
+
+                                <label>Subsidy Name</label>
+
+                                <input type="text" name="name" class="form-control" required>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>State</label>
+
+                                <input type="text" name="state" class="form-control"
+                                    placeholder="All India / Telangana / Andhra Pradesh" required>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>Eligibility</label>
+
+                                <textarea name="eligibility" class="form-control" rows="3" required></textarea>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>Benefits</label>
+
+                                <textarea name="benefits" class="form-control" rows="3" required></textarea>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>Last Date</label>
+
+                                <input type="date" name="last_date" class="form-control" required>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>Required Documents</label>
+
+                                <textarea name="required_documents" class="form-control" rows="3" required></textarea>
+
+                            </div>
+
+                            <div class="text-center">
+
+                                <button type="submit" class="btn btn-success px-5">
+
+                                    Save Subsidy
+
+                                </button>
+
+                                <a href="{{ url_for('manage_subsidies') }}" class="btn btn-secondary px-5">
+
+                                    Cancel
+
+                                </a>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
